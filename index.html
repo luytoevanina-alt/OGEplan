@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Трекер ОГЭ — математика (полный)</title>
+<style>
+  :root {
+    --bg: #f6efe6;
+    --surface: #fffdf9;
+    --fg: #111;
+    --line-soft: #d4d4d4;
+    --muted: #6b6b6b;
+    --row-alt: #efe5d8;
+    --s0: #fffdf9;
+    --s1: #ffd400;
+    --s2: #00c853;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    overflow-anchor: none; 
+  }
+  
+  .app-container {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  /* settings */
+  .settings-wrap { position: relative; }
+  .settings-btn {
+    font: inherit;
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    background: var(--surface);
+    color: #111;
+    border: 1.5px solid #111;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .settings-btn:hover { background: #111; color: #fff; }
+  .settings-panel {
+    position: absolute;
+    right: 0;
+    top: 46px;
+    width: 360px;
+    background: var(--surface);
+    border: 1.5px solid #111;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+    z-index: 40;
+    display: none;
+  }
+  .settings-panel.open { display: block; }
+  .settings-panel h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin: 0 0 12px;
+    color: var(--muted);
+  }
+  .settings-panel .action { margin-bottom: 14px; }
+  .settings-panel .action button {
+    font: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: var(--surface);
+    color: #111;
+    border: 1.5px solid #111;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+  .settings-panel .action button:hover { background: #111; color: #fff; }
+  .settings-panel .action .hint {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .settings-panel .divider { border-top: 1px solid var(--line-soft); margin: 14px 0; }
+  .settings-panel details { font-size: 12.5px; color: #222; }
+  .settings-panel details summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    outline: none;
+  }
+  .settings-panel details ol { margin: 8px 0 0; padding-left: 18px; line-height: 1.5; }
+  .settings-panel details li { margin-bottom: 4px; }
+  .settings-panel details code { background: #f2f2f2; padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+  .settings-panel .note-small { font-size: 11.5px; color: var(--muted); line-height: 1.45; margin-top: 10px; }
+  .settings-panel .vk-link {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 6px;
+  }
+  .settings-panel .vk-link:hover { color: #111; text-decoration: underline; }
+
+  /* legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend .sw {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 1.5px solid #111;
+    border-radius: 3px;
+    vertical-align: -2px;
+    margin-right: 5px;
+  }
+  .legend .sw.s1 { background: var(--s1); }
+  .legend .sw.s2 { background: var(--s2); border-color: #1e7e46; }
+  .legend .hint { margin-left: auto; }
+
+  /* table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1.5px solid #111;
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1100px;
+    table-layout: fixed; 
+  }
+  th, td {
+    border: 1px solid var(--line-soft);
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+    height: 44px; 
+  }
+  thead th {
+    background: #f7f7f7;
+    font-weight: 600;
+    padding: 6px 2px;
+    font-size: 11.5px;
+    line-height: 1.2;
+    vertical-align: bottom;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  thead th.group {
+    background: #111;
+    color: #fff;
+    font-size: 11px;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    padding: 6px 2px;
+  }
+  th.num {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 10.5px;
+    background: #fafafa;
+  }
+  
+  /* Сузили колонку ученика */
+  .name-col { min-width: 120px; width: 120px; }
+  thead th.name-col { text-align: left; padding-left: 10px; }
+  td.name-col {
+    text-align: left;
+    padding: 0 4px 0 8px;
+    border-right: 1.5px solid #111;
+    background: var(--surface);
+  }
+  td.name-col input {
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    width: 100%;
+    padding: 8px 0;
+    color: #111;
+  }
+  td.name-col input:focus { outline: 2px solid #111; outline-offset: -2px; background: #fff8e6; }
+
+  /* cells */
+  .cell {
+    width: 50px;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    transition: background .12s;
+    background: var(--s0);
+  }
+  .cell.s1 { background: var(--s1); }
+  .cell.s2 { background: var(--s2); }
+  .cell .date {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(0,0,0,.75);
+    pointer-events: none;
+  }
+  .cell.s2 .date { color: #fff; }
+  
+  /* индикаторы */
+  .cell .ind-note {
+    position: absolute; top: 3px; right: 3px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #111; display: none;
+    pointer-events: none;
+  }
+  .cell.has-note .ind-note { display: block; }
+  .cell.s2 .ind-note { background: #fff; }
+
+  .cell .ind-hw {
+    position: absolute; bottom: 3px; right: 3px;
+    font-size: 12px; line-height: 1; font-weight: 900;
+    color: #111; display: none;
+    pointer-events: none;
+  }
+  .cell.has-hw .ind-hw { display: block; }
+  .cell.s2 .ind-hw { color: #fff; }
+
+  /* Скрепка теперь кликабельная */
+  .cell .ind-link {
+    position: absolute; bottom: 3px; left: 3px;
+    width: 16px; height: 16px; /* Чуть увеличили зону клика */
+    color: #111; 
+    display: none;
+    cursor: pointer;
+    transition: transform 0.15s, color 0.15s;
+  }
+  .cell.has-link .ind-link { display: block; }
+  .cell.s2 .ind-link { color: #fff; }
+  
+  /* Эффект при наведении на скрепку */
+  .cell .ind-link:hover {
+    transform: scale(1.3); /* Визуально увеличивается */
+    color: #0066cc; /* Подсвечивается синим */
+  }
+  .cell.s2 .ind-link:hover {
+    color: #aaddff;
+  }
+
+  /* row striping */
+  tbody tr:nth-child(even) td.name-col,
+  tbody tr:nth-child(even) td.cell.s0 { background: var(--row-alt); }
+  tbody tr:nth-child(even) td.name-col input { background: transparent; }
+  tbody tr:nth-child(even) td.name-col input:focus { background: #fff8e6; }
+
+  /* delete col */
+  td.del { width: 34px; border-left: 1.5px solid #111; background: var(--surface); }
+  td.del button {
+    border: none; background: transparent; font-size: 14px;
+    padding: 4px 6px; color: #111; cursor: pointer;
+  }
+  td.del button:hover { background: #111; color: #fff; }
+
+  /* add student */
+  .add-student { margin-top: 12px; }
+  .add-student button {
+    font: inherit; font-size: 13px; padding: 8px 16px;
+    background: var(--surface); color: #111;
+    border: 1.5px solid #111; border-radius: 4px; cursor: pointer;
+  }
+  .add-student button:hover { background: #111; color: #fff; }
+
+  /* кастомный тултип */
+  #customTooltip {
+    position: fixed; z-index: 100;
+    background: #222; color: #fff;
+    padding: 10px 12px; border-radius: 6px;
+    font-size: 12px; line-height: 1.4;
+    pointer-events: none; display: none;
+    max-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  }
+  #customTooltip strong { color: #ffd400; }
+
+  /* модальное окно */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4);
+    z-index: 90; display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1.5px solid #111;
+    border-radius: 8px; padding: 20px; width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  }
+  .modal h3 { margin: 0 0 16px; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; }
+  .modal .group { margin-bottom: 14px; }
+  .modal label {
+    display: block; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; font-weight: 600;
+  }
+  .modal input[type="text"], .modal input[type="url"], .modal textarea {
+    width: 100%; border: 1px solid #111; border-radius: 4px;
+    padding: 8px; font: inherit; font-size: 13px; color: #111; background: #fff;
+  }
+  .modal textarea { min-height: 60px; resize: vertical; }
+  .modal input:focus, .modal textarea:focus { outline: 2px solid #111; outline-offset: 1px; }
+  .modal .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .modal .checkbox-row input { width: 16px; height: 16px; cursor: pointer; }
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;
+  }
+  .modal-actions button {
+    padding: 8px 16px; font: inherit; font-size: 13px;
+    border: 1.5px solid #111; border-radius: 4px;
+    cursor: pointer; background: var(--surface); color: #111;
+  }
+  .modal-actions button:hover { background: #111; color: #fff; }
+  .modal-actions button.primary { background: #111; color: #fff; }
+  .modal-actions button.primary:hover { background: #333; }
+
+  @media print {
+    body { padding: 0; background: #fff; display: block; }
+    .app-container { max-width: none; }
+    .topbar .settings-wrap, .legend .hint, .add-student, .modal-overlay, #customTooltip { display: none !important; }
+    .table-wrap { border: 1px solid #000; background: #fff; }
+    thead th { position: static; }
+    .cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    td.del, th.del { display: none; }
+    tbody tr:nth-child(even) td.name-col,
+    tbody tr:nth-child(even) td.cell.s0 { background: var(--row-alt) !important; }
+    .cell .ind-link { color: #000 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="topbar">
+    <h1>Трекер ОГЭ · математика</h1>
+    <div class="settings-wrap">
+      <button class="settings-btn" id="settingsBtn" title="Настройки и перенос">⋯</button>
+      <div class="settings-panel" id="settingsPanel">
+        <h2>Перенос и резервная копия</h2>
+        <div class="action">
+          <button id="saveCopyBtn">Сохранить копию на компьютер</button>
+          <div class="hint">Скачает один файл со всеми учениками, цветами, ДЗ и заметками.</div>
+        </div>
+        <div class="action">
+          <button id="loadCopyBtn">Загрузить копию с компьютера</button>
+          <div class="hint">Выберите файл, сохранённый ранее. <b>Внимание:</b> текущие данные заменятся.</div>
+          <input type="file" id="loadCopyFile" accept=".json" hidden>
+        </div>
+        <div class="divider"></div>
+        <details>
+          <summary>Как перенести на другой компьютер</summary>
+          <ol>
+            <li>Нажмите «Сохранить копию» — файл скачается в «Загрузки».</li>
+            <li>Перенесите <b>этот файл</b> и <b>сам трекер</b> (<code>tracker_oge_full.html</code>) на другой компьютер.</li>
+            <li>Откройте трекер, нажмите «⋯» → «Загрузить копию» и выберите файл.</li>
+            <li>Готово.</li>
+          </ol>
+        </details>
+        <div class="note-small">
+          Данные хранятся в браузере. При чистке кэша они пропадут — загрузите копию, чтобы восстановить.
+        </div>
+        <div class="divider"></div>
+        <div class="action danger">
+          <button id="clearAllBtn">Начать заново</button>
+          <div class="hint">Очистит таблицу полностью.</div>
+        </div>
+        <div class="action">
+          <a href="https://vk.ru/country_tutor" target="_blank" rel="noopener noreferrer" class="vk-link">Наша группа ВКонтакте</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw"></span>не начато</span>
+    <span><span class="sw s1"></span>в работе</span>
+    <span><span class="sw s2"></span>пройдено</span>
+    <span class="hint">клик — статус · двойной клик — ДЗ и заметка · наведите на ячейку, чтобы увидеть детали</span>
+  </div>
+
+  <div class="table-wrap">
+    <table id="tracker"></table>
+  </div>
+
+  <div class="add-student">
+    <button id="addStudent">+ ученик</button>
+  </div>
+</div>
+
+<div id="customTooltip"></div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3 id="modalTitle">Задание</h3>
+    
+    <div class="group">
+      <label class="checkbox-row">
+        <input type="checkbox" id="modalHwDone">
+        ДЗ задано
+      </label>
+    </div>
+
+    <div class="group" id="hwFields" style="display:none;">
+      <label>Что задано (текст)</label>
+      <input type="text" id="modalHwText" placeholder="например: № 125-130">
+    </div>
+
+    <div class="group" id="hwLinkGroup" style="display:none;">
+      <label>Ссылка на ДЗ</label>
+      <input type="url" id="modalHwLink" placeholder="https://...">
+    </div>
+
+    <div class="group">
+      <label>Заметка (ошибка, комментарий)</label>
+      <textarea id="modalNote" placeholder="например: ошибка в №7, разобрать"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button id="modalCancel">Отмена</button>
+      <button id="modalSave" class="primary">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
+const STORAGE_KEY = 'oge_full_tracker_v1';
+
+const TOPICS = [
+  { id: '1-5', label: '1-5', title: 'Практико-ориентированные задачи' },
+  { id: '6', label: '6', title: 'Действия с дробями' },
+  { id: '7', label: '7', title: 'Числовая прямая. Сравнение чисел' },
+  { id: '8', label: '8', title: 'Квадратные корни и степени' },
+  { id: '9', label: '9', title: 'Уравнения' },
+  { id: '10', label: '10', title: 'Вероятность случайных событий' },
+  { id: '11', label: '11', title: 'Графики функций' },
+  { id: '12', label: '12', title: 'Расчеты по формулам' },
+  { id: '13', label: '13', title: 'Неравенства. Системы неравенств' },
+  { id: '14', label: '14', title: 'Свойства последовательностей' },
+  { id: '15', label: '15', title: 'Треугольники' },
+  { id: '16', label: '16', title: 'Окружность и круг' },
+  { id: '17', label: '17', title: 'Четырехугольники' },
+  { id: '18', label: '18', title: 'Фигуры на клетчатой плоскости' },
+  { id: '19', label: '19', title: 'Истинные и ложные геометрические высказывания' },
+  { id: '20', label: '20', title: 'Выражения, уравнения, системы (развернутый ответ)' },
+  { id: '21', label: '21', title: 'Текстовая задача (развернутый ответ)' },
+  { id: '22', label: '22', title: 'Графики функций (развернутый ответ)' },
+  { id: '23', label: '23', title: 'Геометрическая задача (развернутый ответ)' },
+  { id: '24', label: '24', title: 'Доказательство геометрической задачи (развернутый ответ)' },
+  { id: '25', label: '25', title: 'Геометрическая задача повышенной сложности (развернутый ответ)' }
+];
+
+let state = loadState();
+
+function defaultState() {
+  return { students: ['Ученик 1'], cells: {} };
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && Array.isArray(s.students) && s.cells) return s;
+    }
+  } catch (e) {}
+  return defaultState();
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function todayISO() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function fmtShort(iso) {
+  if (!iso) return '';
+  const [, m, d] = iso.split('-');
+  return `${d}.${m}`;
+}
+function cellKey(si, tid) { return `${si}|${tid}`; }
+function getCell(si, tid) {
+  return state.cells[cellKey(si, tid)] || { status: 0, date: '', note: '', hwDone: false, hwText: '', hwLink: '' };
+}
+function setCell(si, tid, data) { state.cells[cellKey(si, tid)] = data; }
+function escapeAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+const table = document.getElementById('tracker');
+
+function render() {
+  let h1 = '<thead><tr>';
+  h1 += '<th class="name-col" rowspan="2">Ученик</th>';
+  TOPICS.forEach(t => {
+    h1 += `<th class="group" title="${t.title}">${t.label}</th>`;
+  });
+  h1 += '<th class="del" rowspan="2"></th></tr>';
+
+  let h2 = '<tr></tr></thead>';
+
+  let body = '<tbody>';
+  state.students.forEach((name, si) => {
+    body += '<tr>';
+    // Добавили spellcheck="false" чтобы браузер не подчеркивал имена
+    body += `<td class="name-col"><input data-student="${si}" value="${escapeAttr(name)}" title="Имя ученика" spellcheck="false"></td>`;
+    
+    TOPICS.forEach(t => {
+      const c = getCell(si, t.id);
+      const cls = ['cell', `s${c.status}`];
+      if (c.note) cls.push('has-note');
+      if (c.hwDone) cls.push('has-hw');
+      if (c.hwLink) cls.push('has-link');
+      
+      let tooltipData = `data-title="${escapeAttr(t.title)}" data-status="${c.status}" data-date="${escapeAttr(c.date)}" data-note="${escapeAttr(c.note)}" data-hwdone="${c.hwDone}" data-hwtext="${escapeAttr(c.hwText)}" data-hwlink="${escapeAttr(c.hwLink)}"`;
+      
+      body += `<td class="${cls.join(' ')}" data-si="${si}" data-tid="${t.id}" ${tooltipData}>`;
+      body += `<span class="date">${fmtShort(c.date)}</span>`;
+      body += `<span class="ind-note" title="Есть заметка"></span>`;
+      body += `<span class="ind-hw" title="ДЗ задано">✓</span>`;
+      // Добавили атрибут data-link, чтобы скрипт знал, куда вести
+      body += `<svg class="ind-link" data-link="${escapeAttr(c.hwLink)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" title="Перейти по ссылке на ДЗ"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>`;
+      body += `</td>`;
+    });
+    
+    body += `<td class="del"><button data-del-student="${si}" title="Удалить ученика">✕</button></td>`;
+    body += '</tr>';
+  });
+  body += '</tbody>';
+
+  table.innerHTML = h1 + h2 + body;
+  bindEvents();
+}
+
+function bindEvents() {
+  table.querySelectorAll('input[data-student]').forEach(inp => {
+    inp.addEventListener('change', e => {
+      const si = +e.target.dataset.student;
+      state.students[si] = e.target.value.trim() || 'Без имени';
+      saveState(); render();
+    });
+  });
+
+  table.querySelectorAll('button[data-del-student]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const si = +e.target.dataset.delStudent;
+      if (!confirm('Удалить ученика и все его отметки?')) return;
+      state.students.splice(si, 1);
+      const newCells = {};
+      Object.entries(state.cells).forEach(([k, v]) => {
+        const [s, tid] = k.split('|');
+        const sNum = Number(s);
+        if (sNum < si) newCells[`${sNum}|${tid}`] = v;
+        else if (sNum > si) newCells[`${sNum-1}|${tid}`] = v;
+      });
+      state.cells = newCells;
+      saveState(); render();
+    });
+  });
+
+  table.querySelectorAll('td.cell').forEach(td => {
+    let clickTimer = null;
+    
+    td.addEventListener('click', (e) => {
+      // Если кликнули на скрепку, не обрабатываем клик по ячейке
+      if (e.target.closest('.ind-link')) return;
+      
+      if (clickTimer) return; 
+      clickTimer = setTimeout(() => {
+        clickTimer = null;
+        const si = +td.dataset.si, tid = td.dataset.tid;
+        const c = getCell(si, tid);
+        c.status = (c.status + 1) % 3;
+        if (c.status !== 0) c.date = todayISO();
+        setCell(si, tid, c);
+        saveState(); render();
+        hideTooltip();
+      }, 250);
+    });
+
+    td.addEventListener('dblclick', (e) => {
+      // Если кликнули на скрепку, не открываем модалку
+      if (e.target.closest('.ind-link')) return;
+      
+      e.preventDefault();
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+      }
+      openModal(td);
+    });
+
+    td.addEventListener('mouseenter', (e) => showTooltip(e, td));
+    td.addEventListener('mouseleave', hideTooltip);
+  });
+
+  // Обработчик клика по скрепке
+  table.querySelectorAll('.ind-link').forEach(svg => {
+    svg.addEventListener('click', (e) => {
+      e.stopPropagation(); // Останавливаем всплытие, чтобы не менялся цвет ячейки
+      const url = svg.dataset.link;
+      if (url) {
+        // Добавляем http:// если пользователь забыл
+        let finalUrl = url;
+        if (!/^https?:\/\//i.test(finalUrl)) {
+          finalUrl = 'https://' + finalUrl;
+        }
+        window.open(finalUrl, '_blank');
+      }
+    });
+  });
+}
+
+/* ---------- Tooltip ---------- */
+const tooltip = document.getElementById('customTooltip');
+
+function showTooltip(e, td) {
+  const title = td.dataset.title;
+  const statusNum = +td.dataset.status;
+  const date = td.dataset.date;
+  const note = td.dataset.note;
+  const hwDone = td.dataset.hwdone === 'true';
+  const hwText = td.dataset.hwtext;
+  const hwLink = td.dataset.hwlink;
+
+  const statusStr = statusNum === 0 ? 'Не начато' : (statusNum === 1 ? 'В работе' : 'Пройдено');
+  const dateStr = date ? ` (${fmtShort(date)})` : '';
+
+  let html = `<strong>${title}</strong><br>`;
+  html += `Статус: ${statusStr}${dateStr}<br>`;
+  
+  if (hwDone) {
+    html += `<span style="color:#ffd400;">ДЗ задано:</span> ${hwText || '(текст не указан)'}<br>`;
+    // Ссылку в тултипе оставили для наглядности, но теперь можно кликать по скрепке
+    if (hwLink) html += `Ссылка: <span style="color:#00c853;">есть (кликните по скрепке)</span><br>`;
+  }
+  
+  if (note) {
+    html += `<span style="color:#ffd400;">Заметка:</span> ${note}`;
+  }
+
+  tooltip.innerHTML = html;
+  tooltip.style.display = 'block';
+
+  const rect = td.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2;
+  let top = rect.top - tooltip.offsetHeight - 8;
+  
+  if (top < 10) top = rect.bottom + 8;
+  if (left < 10) left = 10;
+  if (left + tooltip.offsetWidth > window.innerWidth - 10) left = window.innerWidth - tooltip.offsetWidth - 10;
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+}
+
+function hideTooltip() {
+  tooltip.style.display = 'none';
+}
+
+/* ---------- Modal ---------- */
+const modal = document.getElementById('editModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalHwDone = document.getElementById('modalHwDone');
+const modalHwText = document.getElementById('modalHwText');
+const modalHwLink = document.getElementById('modalHwLink');
+const modalNote = document.getElementById('modalNote');
+const hwFields = document.getElementById('hwFields');
+const hwLinkGroup = document.getElementById('hwLinkGroup');
+
+let currentEdit = null;
+
+function openModal(td) {
+  const si = +td.dataset.si, tid = td.dataset.tid;
+  currentEdit = { si, tid };
+  const c = getCell(si, tid);
+  
+  const topic = TOPICS.find(t => t.id === tid);
+  modalTitle.textContent = `Задание ${tid}: ${topic.title}`;
+  
+  modalHwDone.checked = c.hwDone;
+  modalHwText.value = c.hwText || '';
+  modalHwLink.value = c.hwLink || '';
+  modalNote.value = c.note || '';
+  
+  toggleHwFields(c.hwDone);
+  modal.classList.add('open');
+  hideTooltip();
+}
+
+function toggleHwFields(show) {
+  hwFields.style.display = show ? 'block' : 'none';
+  hwLinkGroup.style.display = show ? 'block' : 'none';
+}
+
+modalHwDone.addEventListener('change', (e) => {
+  toggleHwFields(e.target.checked);
+});
+
+document.getElementById('modalCancel').addEventListener('click', () => {
+  modal.classList.remove('open');
+  currentEdit = null;
+});
+
+document.getElementById('modalSave').addEventListener('click', () => {
+  if (!currentEdit) return;
+  const { si, tid } = currentEdit;
+  const c = getCell(si, tid);
+  
+  c.hwDone = modalHwDone.checked;
+  c.hwText = modalHwText.value.trim();
+  c.hwLink = modalHwLink.value.trim();
+  c.note = modalNote.value.trim();
+  
+  setCell(si, tid, c);
+  saveState();
+  modal.classList.remove('open');
+  currentEdit = null;
+  render();
+});
+
+/* ---------- Settings ---------- */
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+
+settingsBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  settingsPanel.classList.toggle('open');
+});
+document.addEventListener('mousedown', e => {
+  if (!settingsPanel.classList.contains('open')) return;
+  if (settingsPanel.contains(e.target) || e.target === settingsBtn) return;
+  settingsPanel.classList.remove('open');
+});
+
+document.getElementById('saveCopyBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  const stamp = `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+  a.download = `Трекер ОГЭ — копия ${stamp}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+const loadCopyFile = document.getElementById('loadCopyFile');
+document.getElementById('loadCopyBtn').addEventListener('click', () => loadCopyFile.click());
+loadCopyFile.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!confirm('Текущие данные будут заменены данными из файла. Продолжить?')) { e.target.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data || !Array.isArray(data.students) || !data.cells) {
+        throw new Error('это не файл трекера');
+      }
+      state = data; saveState(); render();
+      settingsPanel.classList.remove('open');
+    } catch (err) {
+      alert('Не удалось загрузить файл: ' + err.message);
+    } finally { e.target.value = ''; }
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  if (!confirm('Очистить таблицу полностью? Это действие нельзя отменить.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = defaultState(); saveState(); render();
+  settingsPanel.classList.remove('open');
+});
+
+document.getElementById('addStudent').addEventListener('click', () => {
+  state.students.push('Новый ученик');
+  const newIndex = state.students.length - 1;
+  saveState();
+  render();
+
+  // Двойной requestAnimationFrame гарантирует, что браузер точно перерисовал таблицу
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const inp = table.querySelector(`input[data-student="${newIndex}"]`);
+      if (inp) {
+        inp.focus();
+        inp.select();
+        inp.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
+  });
+});
+
+render();
+</script>
+</body>
+</html>
